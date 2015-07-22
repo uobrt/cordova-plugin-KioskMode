@@ -11,7 +11,7 @@ import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-public class LockTask extends CordovaPlugin {
+public class KioskMode extends CordovaPlugin {
 
   private static final String ACTION_START_LOCK_TASK = "startLockTask";
   private static final String ACTION_STOP_LOCK_TASK = "stopLockTask";
