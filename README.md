@@ -1,83 +1,85 @@
-# LockTask
+# KioskMode
 
-A Cordova plugin that provides access to Android’s screen pinning APIs.
+A Cordova plugin that implements a toggleable kiosk mode on Android devices without access to android's screen pinning api.
+
+Essentially a series of dirty hacks as described here:
+
+http://www.andreas-schrade.de/2015/02/16/android-tutorial-how-to-create-a-kiosk-mode-in-android/
 
 ## Installation
-
-LockTask will only work on Android devices for apps targeting Lollipop (API 21) or above.
 
 Navigate to your project root and run:
 
 ```sh
-cordova plugin add https://github.com/livesure/cordova-plugin-locktask.git
+cordova plugin add https://github.com/uobrt/cordova-plugin-KioskMode.git
 ```
 
 ## Usage
 
-### startLockTask
-
-- **successCallback:** [Function optional] - success callback
-
-- **errorCallback:** [Function(error) optional] - error callback, error message string is passed
-
-- **className:** [String optional] - DeviceAdminReceiver subclass name if device owner is enabled
+### start
 
 ```js
-window.plugins.locktask.startLockTask(successCallback, errorCallback, className);
+window.plugins.KioskMode.start();
 ```
 
 ### stopLockTask
 
-- **successCallback:** [Function optional] - success callback
-
-- **errorCallback:** [Function(error) optional] - error callback, error message string is passed
-
 ```js
-window.plugins.locktask.startLockTask(successCallback, errorCallback);
+window.plugins.KioskMode.stop();
 ```
 
-## Device admin
+## Full Functionality
 
-If the app is not set up as the device owner, the user will have to accept a prompt when ```startLockTask``` is called. The user will also be able to unpin the screen with a navigation button combination. With device owner set, there is no prompt and only the app itself can unpin the screen.
+In order to use the full functionality of this plugin, a slight modification to the generated java source files
+must be made. 
 
-*IMPORTANT: Once set, you cannot unset device owner or uninstall the app without factory resetting the device.*
+0. Write down the widget id in your cordova project config.xml file. 
 
-There are several ways to set device owner but this is the method that worked for me.
+1. Open your android MainActivity.java file. Your Widget ID becomes a file path, so that edu.brt.uoregon.KioskMode
+becomes edu/brt/uoregon/KioskMode.
 
-1. Enable Developer options on the device by repeatedly tapping ```Build number``` under ```Settings > About Tablet```.
+```
+platforms/android/src/***[Your/Widget/Id/Path]***/MainActivity.java
+```
 
-1. Check the USB debugging option under ```Settings > Developer options```.
+2. At the end of the import statements, add the following line:
 
-1. Add a device admin sub class of DeviceAdminReceiver.
+```java
+import edu.uoregon.brt.KioskMode.KioskActivity;
+```
 
-    ```java
-    package com.exapmle.package;
-    import android.app.admin.DeviceAdminReceiver;
-    public class DeviceAdminExample extends DeviceAdminReceiver {
-      // Some code here if you want but not necessary
-    }
-    ```
+3. In the class declaration replace:
 
-1. Add a receiver to ```AndroidManifest.xml``` directly below ```</activity>```.
+```java
+public class MainActivity extends CordovaActivity
+```
 
-    ```xml
-    <receiver android:label="@string/app_name" android:name="DeviceAdminExample" android:permission="android.permission.BIND_DEVICE_ADMIN">
-      <meta-data android:name="android.app.device_admin" android:resource="@xml/device_admin" />
-      <intent-filter>
-        <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-      </intent-filter>
-    </receiver>
-    ```
+with 
 
-1. Connect device via USB.
+```java
+public class MainActivity extends KioskActivity
+```
 
-1. Install the app to the device.
+From here, ```cordova build android``` tends to fail with the message 
+```Error: No Java files found which extend CordovaActivity.```
 
-1. Use Android Debug Bridge and Device Policy Manager to set device owner.
+```KioskActivity``` actually extends ```CordovaActivity``` but Cordova doesn't see it. Until a better workaround is found
+we still need to override a few things from CordovaActivity in order to handle system dialogs and back presses. 
+Import ```platforms/Android``` into Android Studio and build the project manually. All will be well.
 
-    ```sh
-    adb shell
-    dpm set-device-owner com.exapmle.package/.DeviceAdminExample
-    ```
+## Notes
 
-1. All done!
+### Back Button
+While in Kiosk Mode, the back button can't exit your app, but you may want to disable it within your app 
+for good measure. Make sure to do this after ```DeviceReady``` has been fired.
+```js
+document.addEventListener("backbutton", function (e) {
+	e.preventDefault();
+}, false );
+```
+
+### Other Plugins to Use
+
+- ```mesmotronic/cordova-fullscreen-plugin``` The immersive mode complements KioskMode nicely.
+
+- ```livesure/cordova-plugin-locktask``` A less hacky solution but only works on Android 5.0+

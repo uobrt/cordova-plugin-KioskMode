@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	id="edu.uoregon.brt.kioskmode"
+	id="edu.uoregon.brt.KioskMode"
 	version="1.0.0">
 	<name>KioskMode</name>
-	<description>A Cordova plugin that provides access to Android’s screen pinning APIs.</description>
-	<keywords>cordova,android,screen pinning,startLockTask,stopLockTask,Kiosk Mode,Kiosk,kioskmode,lollipop,api 21</keywords>
+	<description>
+		A Cordova plugin that implements a toggleable kiosk mode on devices without access to android's screen
+		pinning api.
+	</description>
+	<keywords>cordova,android,screen pinning,startLockTask,stopLockTask,Kiosk Mode,Kiosk,kioskmode,lollipop,api 19</keywords>
 	<license>MIT</license>
 	<engines>
 		<engine name="cordova" version=">=3.0.0"/>
@@ -16,12 +19,26 @@
 	<platform name="android">
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="KioskMode">
-				<param name="android-package" value="edu.uoregon.brt.kioskmode" />
+				<param name="android-package" value="edu.uoregon.brt.KioskMode.KioskMode" />
 			</feature>
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/*">
+			<uses-permission android:name="android.permission.GET_TASKS" />
 			<uses-permission android:name="android.permission.WAKE_LOCK" />
+			<uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
 		</config-file>
-		<source-file src="src/android/edu/uoregon/brt/plugins/KioskMode.java" target-dir="src/edu/uoregon/brt/plugins"/>
+		<config-file target="AndroidManifest.xml" parent="/*/application">
+			<service android:name="edu.uoregon.brt.KioskMode.KioskService" />
+		</config-file>
+		<source-file src="src/android/edu/uoregon/brt/KioskMode/KioskActivity.java" 
+			target-dir="src/edu/uoregon/brt/KioskMode"/>
+		<source-file src="src/android/edu/uoregon/brt/KioskMode/KioskMode.java" 
+			target-dir="src/edu/uoregon/brt/KioskMode"/>
+		<source-file src="src/android/edu/uoregon/brt/KioskMode/KioskService.java" 
+			target-dir="src/edu/uoregon/brt/KioskMode"/>
+		<source-file src="src/android/edu/uoregon/brt/KioskMode/OnScreenOffReceiver.java" 
+			target-dir="src/edu/uoregon/brt/KioskMode"/>
+		<source-file src="src/android/edu/uoregon/brt/KioskMode/PrefUtils.java" 
+			target-dir="src/edu/uoregon/brt/KioskMode"/>
 	</platform>
 </plugin>
