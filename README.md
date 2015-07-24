@@ -61,6 +61,7 @@ public class MainActivity extends KioskActivity
 ```
 
 From here, ```cordova build android``` tends to fail with the message 
+
 ```Error: No Java files found which extend CordovaActivity.```
 
 ```KioskActivity``` actually extends ```CordovaActivity``` but Cordova doesn't see it. Until a better workaround is found
