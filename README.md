@@ -22,7 +22,7 @@ cordova plugin add https://github.com/uobrt/cordova-plugin-KioskMode.git
 window.plugins.KioskMode.start();
 ```
 
-### stopLockTask
+### stop
 
 ```js
 window.plugins.KioskMode.stop();
